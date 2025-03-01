@@ -9,6 +9,7 @@ const initialState = {
     fullname: 'Rajesh',
     dateOfBirth: '02.02.1999',
     otp: '',
+    selectedImage: "",
     messages: [{type: '', sender: ''}]
 }
 
@@ -22,6 +23,8 @@ const AuthSlice = createSlice({
             state.phonenumber = action.payload?.phonenumber || state.phonenumber;
             state.fullname = action.payload?.fullname || state.fullname;
             state.dateOfBirth = action.payload?.dateOfBirth || state.dateOfBirth;
+            state.selectedImage = action.payload?.selectedImage || state.selectedImage;
+
             state.activeUser = true;
         },
         setOtp: (state, action) => {

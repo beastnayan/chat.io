@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState , useEffect } from "react";
 import { FaCamera } from "react-icons/fa";
 import { useDispatch } from 'react-redux'
 import { setActiveUser , clearActiveUser } from "../store/AuthSlice";
@@ -6,93 +6,112 @@ import axios from "axios";
 
 function RegistrationPage() {
 
-  const [formData, setFormData] = useState({
-    name: "",
+  const [storeFormData, setStoreFormData] = useState({
+    fullname: "",
     dob: "",
     username: "",
+    phonenumber: "",
+
   });
 
-  const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(null)
+  const [previewImage , setPreviewImage] = useState(""); 
+  const [storeImageFromInput, setStoreImageFromInput] = useState(null); 
   const dispatch = useDispatch();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log(e.target.name);
 
-    setFormData((prevData) => ({
+    setStoreFormData((prevData) => ({
       ...prevData,
-      [name]: value,
+      [name]: value || "",
       
     }));
   };
 
-  const handleImageChange = (e) => {
+  const handleImageChange =  (e) => {
     const file = e.target.files[0];
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setSelectedImage(imageUrl);
-      console.log(imageUrl , "Image irl");
+    console.log("Check ", "file", file);
+    if (file && e.target.files !== 0) {
+      const imageUrl =  URL.createObjectURL(file);
+      setSelectedImage(file);
+      setPreviewImage(imageUrl);
+      console.log("Check 2.1", "selectedImage 1", selectedImage ,  "previewIamge 1", previewImage);
+      console.log("Check 2", "file", file, "imageUrl", imageUrl);
+     
       
     }
   };
 
-  // here need to fetch api call this is for reference 
-
-  const  GetUserLoggedInfo = () =>{
-   if(formData.name !== "" || 
-    formData.dob === "" || 
-    formData.username === "" || 
-    selectedImage === null)
-    {
-        console.log("name:",formData.name);
-        dispatch(setActiveUser({userName: formData.username, mobileNo: '', fullname: formData.name, dateOfBirth: formData.dob}));
-        setFormData({
-        name: "",
-        dob: "",
-        username: "",})
-    }else{
-        console.log("empty:");
-        dispatch( clearActiveUser({userName: '', mobileNo: '', fullname: '', dateOfBirth: ''}));
-    }
-}
-
-
-// -------------------------------------------------
-
-
-const sendformDtata = async () => {
-
-  try {
-    const sendData = await axios({
-      method:"Post",
-      url:"/api/v1/register",
-      data: formData
-    })
-    console.log("Data sent successfully", sendData.data); 
-
-    
-    
-  } catch (error)
-    {
-    console.log("error message", error);  
-    
-  }
-
-}
-
-
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Form Submitted:", formData);
-    console.log(formData.name , ":Name");
-    
-    GetUserLoggedInfo()
-    sendformDtata()
-    // alert("Registration Successful!");
+    if (!storeFormData.fullname || !storeFormData.dob || !storeFormData.username || !storeFormData.phonenumber) {
+      console.error("Some fields are empty");
+      return;
+    }
+    sendformData(storeFormData)
 
-   
- 
+    setStoreFormData({
+      fullname: "",
+      dob: "",
+      username: "",
+      phonenumber: "",
+    });
+    
   };
+
+
+  useEffect(() => {
+    console.log("Updated selectedImage us:", selectedImage);
+    
+  }, [selectedImage]);
+
+  
+  const sendformData = async (data) =>{
+    try {
+
+      console.log("ender in send data block ");
+      
+      const formDataToSend = new FormData();
+
+      Object.keys(data).forEach((key) => {
+        if (data[key] !== undefined && data[key] !== null) { 
+          formDataToSend.append(key, data[key]);
+        }
+      });
+
+
+      for (let pair of formDataToSend.entries()) {
+        console.log("pairrr :",pair[0], pair[1]); 
+    }
+
+
+      if(selectedImage){  
+        formDataToSend.append("profilePic", selectedImage);
+        
+      }
+
+        
+        
+      const sendData = await axios({
+        method:"Post",
+        url:"/api/v1/register",
+        data: formDataToSend , 
+       
+      })
+
+      dispatch(setActiveUser({username: data.username , phonenumber: data.phonenumber, fullname: data.fullname, dob: data.dob}));
+
+      console.log("sendData", sendData.data);  
+    } 
+    catch (error)
+      {
+       console.log("error message", error);  
+      }
+
+  } 
+
+
 
   return (
     <div
@@ -103,7 +122,7 @@ const sendformDtata = async () => {
         <div className="w-32 h-32 sm:w-36 sm:h-36 md:w-40 md:h-40 lg:w-48 lg:h-48 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
           {selectedImage ? (
             <img
-              src={selectedImage}
+              src={previewImage}
               alt="Uploaded"
               className="w-full h-full object-cover"
             />
@@ -125,6 +144,7 @@ const sendformDtata = async () => {
           accept="image/*"
           capture="user" // Enables camera for mobile
           className="hidden"
+          name="profilePic"
           onChange={handleImageChange}
         />
       </div>
@@ -145,12 +165,12 @@ const sendformDtata = async () => {
           </label>
           <input
             type="text"
-            name="name"
+            name="fullname"
             required={true}
-            value={formData.name}
+            value={storeFormData.fullname}
             onChange={handleChange}
             placeholder="Enter your full name"
-            className="shadow appearance-none border bg-black rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            className="shadow appearance-none border bg-black rounded w-full py-2 px-3 text-white leading-tight focus:outline-none focus:shadow-outline"
           />
         </div>
 
@@ -163,9 +183,27 @@ const sendformDtata = async () => {
             type="date"
             name="dob"
             required={true}
-            value={formData.dob}
+            value={storeFormData.dob}
             onChange={handleChange}
-            className="shadow appearance-none border bg-black rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            className="shadow appearance-none border bg-black rounded w-full py-2 px-3 text-white leading-tight focus:outline-none focus:shadow-outline"
+
+          />
+        </div>
+
+
+        // Enetr mobile No
+        <div className="mb-4">
+          <label className="block text-white text-sm sm:text-base font-bold mb-2">
+            Phone No.
+          </label>
+          <input
+            type="text"
+            name="phonenumber"
+            required={true}
+            value={storeFormData.phonenumber}
+            onChange={handleChange}
+            placeholder="Enter your phone number"
+            className="shadow appearance-none border bg-black rounded w-full py-2 px-3 text-white leading-tight focus:outline-none focus:shadow-outline"
           />
         </div>
 
@@ -178,10 +216,11 @@ const sendformDtata = async () => {
             type="text"
             name="username"
             required={true}
-            value={formData.username}
+            value={storeFormData.username}
             onChange={handleChange}
             placeholder="Create a username"
-            className="shadow appearance-none border bg-black rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            className="shadow appearance-none border bg-black rounded w-full py-2 px-3 text-white leading-tight focus:outline-none focus:shadow-outline"
+
           />
         </div>
 
@@ -189,6 +228,7 @@ const sendformDtata = async () => {
         <div className="flex items-center justify-between">
           <button
             type="submit"
+            
             className="bg-blue-500 hover:bg-gray-300 text-black bg-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full"
           >
             Register

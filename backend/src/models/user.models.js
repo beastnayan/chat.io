@@ -5,8 +5,7 @@ import jwt from 'jsonwebtoken';
 const UserSchema = new Schema(
     {
         userImage: {
-            url: { type: String },
-            localPath: { type: String }
+           type: String,
         },
 
         username:{
@@ -38,7 +37,7 @@ const UserSchema = new Schema(
 
         refreshtoken:{
             type: String,
-            required:true,
+            default: null ,
             trim:true,
         },
 

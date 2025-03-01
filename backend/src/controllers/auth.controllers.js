@@ -1,4 +1,4 @@
-import {User} from '../models/user.js';
+import {User} from '../models/user.models.js';
 
 
 async function generateAcessTokenAndRefreshToken(userid)  {
@@ -20,36 +20,78 @@ async function generateAcessTokenAndRefreshToken(userid)  {
     }
 }
 
-const registerUser = async (req , res) => {
+// const registerUser = async (req , res) => {
    
         
-        // check spelling
-        try {
-            const {username , fullname , dob , phonenumber} = req.body;
-            const userExists = await User.findOne({phonenumber,username});
+//         // check spelling
+//         try {
+//             const {username , fullname , dob , phonenumber  } = req.body;
+//             const profilePic = req.file?.path;
+//             // const userExists = await User.findOne({phonenumber,username});
 
-
-            if(userExists){
-                return res.status(400).json({message : "User already exists"})  
-            }
-            const user = await  User.create({
-                username,
-                fullname,
-                dob,
-                phonenumber
-            });
-            console.log(user);
-            user.save({validateBeforeSave : false});
+//             console.log(username , fullname , dob , phonenumber  , "Registeration page");
+//             console.log(profilePic , "Profile Pic");
             
-            return res.status(201).json({message : "User created successfully", user})
-
-        } catch (error) {
-            res.status(500).json({message:"server error"})
             
+
+
+
+
+//             const userExist = await User.findOne({phonenumber });
+//             if(userExist){  
+//                 return res.status(400).json({message : "User already exists"})  
+//             }
+            
+//             const user = await  User.create({
+//                 username,
+//                 fullname,
+//                 dob,
+//                 phonenumber,
+//                 profilePic
+//             });
+//             console.log(user);
+            
+//             return res.status(201).json({message : "User created successfully", user})
+
+//         } catch (error) {
+//             res.status(500).json({message:"server error"})
+            
+//         }
+        
+   
+// }
+
+const registerUser = async (req, res) => {
+    try {
+        const { username, fullname, dob, phonenumber } = req.body;
+        const profilePic = req.file ? req.file.path : null; // Ensure profilePic is properly assigned
+
+        console.log("Received data:", username, fullname, dob, phonenumber);
+        console.log("Profile Pic Path:", profilePic);
+
+        // Check if user already exists
+        const userExist = await User.findOne({ phonenumber });
+        if (userExist) {
+            return res.status(400).json({ message: "User already exists" });
         }
-        
-   
-}
+
+        // Create new user
+        const user = await User.create({
+            username,
+            fullname,
+            dob,
+            phonenumber,
+            profilePic
+        });
+
+        console.log("User Created:", user);
+
+        return res.status(201).json({ message: "User created successfully", user });
+    } catch (error) {
+        console.error("Error registering user:", error); // Log full error
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
 
 const loginUSer = async (req , res) => {
 

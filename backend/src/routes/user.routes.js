@@ -1,5 +1,7 @@
 import express from "express";
 import { sendOtpToUser , resendOtp} from "../controllers/otp.controllers.js";
+import { registerUser } from "../controllers/auth.controllers.js";
+import {upload} from "../middlewares/uploads.middlewares.js";
 // import { otpValidator } from "../validators/auth.validators.js";
 
 const router =express.Router();
@@ -13,7 +15,6 @@ const router =express.Router();
 
 router.route("/otp").get(sendOtpToUser);
 router.route("/resend-otp").get(resendOtp);
-
-// router.route("/register ").post(sendOtpToUser);
+router.route("/register").post(upload.single("profilePic"),registerUser);
 
 export default router;
