@@ -1,4 +1,6 @@
 import {User} from '../models/user.models.js';
+import generateOTP from '../utils/generateOtp.js';
+import { OTPModel } from '../models/otp.models.js';  
 
 
 async function generateAcessTokenAndRefreshToken(userid)  {
@@ -70,7 +72,7 @@ const registerUser = async (req, res) => {
         console.log("Profile Pic Path:", profilePic);
 
         // Check if user already exists
-        const userExist = await User.findOne({ phonenumber });
+        const userExist = await User.findOne({ phonenumber });  
         if (userExist) {
             return res.status(400).json({ message: "User already exists" });
         }
@@ -89,40 +91,54 @@ const registerUser = async (req, res) => {
         return res.status(201).json({ message: "User created successfully", user });
     } catch (error) {
         console.error("Error registering user:", error); // Log full error
-        res.status(500).json({ message: "Server error", error: error.message });
+        res.status(500).json({ message: "Server error" });
     }
 };
 
-const loginUSer = async (req , res) => {
+const loginUser = async (req , res) => {
 
    try {
     
-    const {phonenumber,username} = req.body;
+    const {phonenumber} = req.body;
+
+    console.log(phonenumber , "Login Page");
     
-    const userExists = await User.findOne({phonenumber,username});
+    
+    const userExists = await User.findOne({phonenumber: phonenumber.trim()});    
+
+    console.log(userExists , "User Exists");
 
     if(!userExists){
         return res.status(400).json({message : "User does not exist. Register Yourself"})
     }
 
-    const {acessToken,refreshToken} =await generateAcessTokenAndRefreshToken(userExists._id);
 
-    res.status(200).json(
+    const generateOtp = generateOTP();
+    console.log(generateOtp , "Generate OTP");
+    
+
+    await OTPModel.create({ phonenumber, OTP: generateOtp });
+
+    const {acessToken,refreshToken} = await generateAcessTokenAndRefreshToken(userExists._id);
+
+    return res.status(200).json(
         {
          acessToken,
          refreshToken,
-         message : "User logged in successfully",
-         createdUser
+         otp : generateOtp,
+         redirect : "/otp",
+         message: "User logged in successfully",
+         user: userExists, // Corrected this variable
         }
     );
 
    } catch (error) {
 
-    req.status(401).json({message : "Invalid Credentials"})
+    res.status(401).json({message : "Invalid Credentials"})
     
    }
     
 }
 
 
-export {registerUser,loginUSer}
+export {registerUser,loginUser}

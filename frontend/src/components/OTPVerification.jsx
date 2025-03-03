@@ -12,6 +12,7 @@ function OTPVerification() {
   const navigate = useNavigate(); 
   const otp = useSelector(state => state.auth.otp);
   const phonenumber = useSelector(state => state.auth.phonenumber);
+  const userName = useSelector(state => state.auth.userName);
   const dispatch = useDispatch();
 
 
@@ -20,11 +21,6 @@ function OTPVerification() {
       setIsDisabled(true);
       return;
     }
-
-    console.log(phonenumber , " q phonenumber");
-    console.log(otp , " q otp");
-    
-    
 
     const interval = setInterval(() => {
       setTimer((prevTimer) => prevTimer - 1);
@@ -42,6 +38,10 @@ function OTPVerification() {
   const handleSubmit = () => {
     if (inputCode === otp.toString()) {
       alert('Verification successful!');
+      console.log(userName,"User Name");
+      
+      
+      navigate("/chatwindow")
     } else {
       alert('Invalid verification code.');
     }
