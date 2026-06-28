@@ -6,12 +6,12 @@ import {upload} from "../middlewares/uploads.middlewares.js";
 
 const router = express.Router();
 
-router.post("/api/v1/otp", (req, res) => {
-    console.log("Send OTP route hit");
+// router.post("/api/v1/otp", (req, res) => {
+//     console.log("Send OTP route hit");
     
-    // Call the function to send OTP
-    sendOtpToUser(req, res);
-  });
+//     // Call the function to send OTP
+//     sendOtpToUser(req, res);
+//   });
 
 router.route("/").post(loginUser);
 router.route("/otp").get(sendOtpToUser);

@@ -99,7 +99,8 @@ const loginUser = async (req , res) => {
 
    try {
     const {phonenumber} = req.body;
-    const userExists = await User.findOne({phonenumber: phonenumber.trim()});    
+    const userExists = await User.findOne({phonenumber: phonenumber.trim()});  
+    console.log(phonenumber, "Phone number received in loginUser"); 
     if(!userExists){
         return res.status(400).json({message : "User does not exist. Register Yourself"})
     }
