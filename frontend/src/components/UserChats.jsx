@@ -61,7 +61,7 @@ export default function UserChats({
 
 
       {/* Chat Messages (Takes Remaining Space) */}
-      <div className="flex-1 p-4 overflow-y-auto">
+      {/* <div className="flex-1 p-4 overflow-y-hidden">
         {messages.map((message, index) => (
           <div
             key={index}
@@ -72,6 +72,25 @@ export default function UserChats({
             }`}
           >
             {message.text}
+          </div>
+        ))}
+      </div> */}
+      {/* Chat Messages */}
+      <div className="flex-1 overflow-y-auto p-4 bg-gray-100">
+        {messages.map((message, index) => (
+          <div
+            key={index}
+            className={`flex mb-3 ${message.sender === "user" ? "justify-end" : "justify-start"
+              }`}
+          >
+            <div
+              className={`max-w-[70%] px-4 py-2 rounded-lg ${message.sender === "user"
+                  ? "bg-green-500 text-white"
+                  : "bg-white text-black shadow"
+                }`}
+            >
+              {message.text}
+            </div>
           </div>
         ))}
       </div>

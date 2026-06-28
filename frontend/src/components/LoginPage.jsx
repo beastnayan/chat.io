@@ -29,22 +29,18 @@ async function handelSendOTP() {
       console.log("Phone number:", phonenumber); // Log the phone number
   
       try {
-        console.log("Sending request to:", `phonenumber=${phonenumber}`);
-  
+        // console.log("Sending request to:", `phonenumber=${phonenumber}`);
         let response = await axios.post("/api/v1/", 
           { phonenumber: phonenumber.trim() || "" }
         );
-
-       
-  
-        console.log("Response from axios: ", response.data); 
-       
-  
+        // console.log("Response from axios: ", response.data); 
         dispatch(setActiveUser({ phonenumber: response.data.user.phonenumber
           , userName : response.data.user.username , fullname :   response.data.user.fullname , otp: response.data.otp }));
         dispatch(setOtp({ otp: response.data.otp }));
         console.log("Phone number sent: ", phonenumber);
         navigate("/otp");
+
+        
       } catch (error) {
         console.log("Error from axios: ", error.response ? error.response.data : error.message);
         console.log("Error status: ", error.response ? error.response.status : "No status");
