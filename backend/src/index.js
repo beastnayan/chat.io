@@ -1,10 +1,15 @@
-import server from "./app.js";
+import dns from "dns";
+
+dns.setServers(["8.8.8.8", "1.1.1.1"]);
+
+
 import connectDb from "./db/index.js";
+import server from "./app.js";
+
 import dotenv from "dotenv";
 dotenv.config({
     path: "./.env"
 });
-
 
 
 connectDb()
@@ -18,6 +23,7 @@ connectDb()
 
 })
 .catch((error) => {
+    console.log("catch: ");
     console.log("Database connection error: ", error);
 });    
 

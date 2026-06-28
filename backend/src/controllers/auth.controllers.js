@@ -98,29 +98,15 @@ const registerUser = async (req, res) => {
 const loginUser = async (req , res) => {
 
    try {
-    
     const {phonenumber} = req.body;
-
-    console.log(phonenumber , "Login Page");
-    
-    
     const userExists = await User.findOne({phonenumber: phonenumber.trim()});    
-
-    console.log(userExists , "User Exists");
-
     if(!userExists){
         return res.status(400).json({message : "User does not exist. Register Yourself"})
     }
-
-
     const generateOtp = generateOTP();
     console.log(generateOtp , "Generate OTP");
-    
-
     await OTPModel.create({ phonenumber, OTP: generateOtp });
-
     const {acessToken,refreshToken} = await generateAcessTokenAndRefreshToken(userExists._id);
-
     return res.status(200).json(
         {
          acessToken,
@@ -133,9 +119,7 @@ const loginUser = async (req , res) => {
     );
 
    } catch (error) {
-
     res.status(401).json({message : "Invalid Credentials"})
-    
    }
     
 }
