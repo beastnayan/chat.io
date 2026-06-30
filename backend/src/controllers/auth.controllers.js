@@ -66,6 +66,7 @@ async function generateAcessTokenAndRefreshToken(userid)  {
 const registerUser = async (req, res) => {
     try {
         const { username, fullname, dob, phonenumber } = req.body;
+        console.log("request Body " , req.body)
         const profilePic = req.file ? req.file.path : null; // Ensure profilePic is properly assigned
 
         console.log("Received data:", username, fullname, dob, phonenumber);
@@ -106,8 +107,10 @@ const loginUser = async (req , res) => {
     }
     const generateOtp = generateOTP();
     console.log(generateOtp , "Generate OTP");
-    await OTPModel.create({ phonenumber, OTP: generateOtp });
+    let createModel = await OTPModel.create({ phonenumber, OTP: generateOtp });
+    console.log(createModel , "OTP Model Created");
     const {acessToken,refreshToken} = await generateAcessTokenAndRefreshToken(userExists._id);
+    console.log(acessToken, refreshToken, "Tokens generated");
     return res.status(200).json(
         {
          acessToken,

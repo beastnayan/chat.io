@@ -13,7 +13,7 @@ const router = express.Router();
 //     sendOtpToUser(req, res);
 //   });
 
-router.route("/").post(loginUser);
+router.route("/logIn").post(loginUser);
 router.route("/otp").get(sendOtpToUser);
 router.route("/resend-otp").get(resendOtp);
 router.route("/register").post(upload.single("profilePic"),registerUser);
