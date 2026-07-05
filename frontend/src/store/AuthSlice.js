@@ -3,11 +3,11 @@ import { createSlice } from '@reduxjs/toolkit'; // ✅ Correct
 
 
 const initialState = {
-    activeUser: false,
-    userName: 'raju@123',
-    phonenumber: '0000000000',
-    fullname: 'Rajesh',
-    dateOfBirth: '02.02.1999',
+    activeUser: null,
+    userName: '',
+    phonenumber: '',
+    fullname: '',
+    dateOfBirth: '',
     otp: '',
     selectedImage: "",
     messages: [{type: '', sender: ''}]
@@ -19,6 +19,7 @@ const AuthSlice = createSlice({
     initialState,
     reducers: {
         setActiveUser: (state, action) => {
+            state.activeUser = action.payload?.activeUser || state.activeUser;
             state.userName = action.payload?.userName || state.userName;
             state.phonenumber = action.payload?.phonenumber || state.phonenumber;
             state.fullname = action.payload?.fullname || state.fullname;
