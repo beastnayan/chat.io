@@ -22,47 +22,6 @@ async function generateAcessTokenAndRefreshToken(userid)  {
     }
 }
 
-// const registerUser = async (req , res) => {
-   
-        
-//         // check spelling
-//         try {
-//             const {username , fullname , dob , phonenumber  } = req.body;
-//             const profilePic = req.file?.path;
-//             // const userExists = await User.findOne({phonenumber,username});
-
-//             console.log(username , fullname , dob , phonenumber  , "Registeration page");
-//             console.log(profilePic , "Profile Pic");
-            
-            
-
-
-
-
-//             const userExist = await User.findOne({phonenumber });
-//             if(userExist){  
-//                 return res.status(400).json({message : "User already exists"})  
-//             }
-            
-//             const user = await  User.create({
-//                 username,
-//                 fullname,
-//                 dob,
-//                 phonenumber,
-//                 profilePic
-//             });
-//             console.log(user);
-            
-//             return res.status(201).json({message : "User created successfully", user})
-
-//         } catch (error) {
-//             res.status(500).json({message:"server error"})
-            
-//         }
-        
-   
-// }
-
 const registerUser = async (req, res) => {
     try {
         const { username, fullname, dob, phonenumber } = req.body;
@@ -100,12 +59,10 @@ const loginUser = async (req , res) => {
    try {
     const {phonenumber} = req.body;
     const userExists = await User.findOne({phonenumber: phonenumber.trim()});  
-    console.log(phonenumber, "Phone number received in loginUser"); 
     if(!userExists){
         return res.status(400).json({message : "User does not exist. Register Yourself"})
     }
     const generateOtp = generateOTP();
-    console.log(generateOtp , "Generate OTP");
     await OTPModel.create({ phonenumber, OTP: generateOtp });
     const {acessToken,refreshToken} = await generateAcessTokenAndRefreshToken(userExists._id);
     return res.status(200).json(
@@ -126,4 +83,43 @@ const loginUser = async (req , res) => {
 }
 
 
-export {registerUser,loginUser}
+
+const checkPhoneNumber = async(req,res) =>{
+     const {phonenumber} =req.params;
+
+
+    const user = await User.findOne({
+        phonenumber: phonenumber
+    });
+
+    if (user) {
+        return res.json({
+            exists: true
+        });
+    }
+
+    return res.json({
+        exists: false
+    });
+}
+
+const checkUserName = async(req,res) =>{
+     const {username} =req.params;
+
+
+    const user = await User.findOne({
+        username: username
+    });
+
+    if (user) {
+        return res.json({
+            exists: true
+        });
+    }
+
+    return res.json({
+        exists: false
+    });
+}
+
+export {registerUser,loginUser ,checkPhoneNumber , checkUserName}

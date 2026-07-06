@@ -64,7 +64,7 @@ UserSchema.methods.generateAcessTokens = function() {
        expiresIn: process.env.ACESS_TOKEN_SECRET_EXPIRY
     }
    )
-}
+}   
 
 UserSchema.methods.generateRefershTokens = function() {
     return jwt.sign(
