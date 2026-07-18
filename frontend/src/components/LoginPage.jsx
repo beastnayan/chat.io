@@ -23,12 +23,12 @@ function LoginPage() {
 
   async function handelSendOTP() {
     const phonePattern = /^\d{10}$/;
-
     if (phonePattern.test(phonenumber)) {
       try {
         let response = await axios.post("/api/v1/",
           { phonenumber: phonenumber.trim() || "" }
         );
+
 
 
         dispatch(setActiveUser({
