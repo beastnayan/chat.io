@@ -1,9 +1,10 @@
-import {User} from '../models/user.models.js';
+import { User } from '../models/user.models.js';
 import generateOTP from '../utils/generateOtp.js';
-import { OTPModel } from '../models/otp.models.js';  
+import { OTPModel } from '../models/otp.models.js';
+import jwt from 'jsonwebtoken';
 
 
-async function generateAcessTokenAndRefreshToken(userid)  {
+async function generateAcessTokenAndRefreshToken(userid) {
 
     try {
         const user = await User.findById(userid);
@@ -14,17 +15,17 @@ async function generateAcessTokenAndRefreshToken(userid)  {
 
         user.refreshtoken = refreshToken;
 
-        return {acessToken,refreshToken}    
- 
+        return { acessToken, refreshToken }
+
     } catch (error) {
         console.log("error : 500", error)
-        
+
     }
 }
 
 // const registerUser = async (req , res) => {
-   
-        
+
+
 //         // check spelling
 //         try {
 //             const {username , fullname , dob , phonenumber  } = req.body;
@@ -33,8 +34,8 @@ async function generateAcessTokenAndRefreshToken(userid)  {
 
 //             console.log(username , fullname , dob , phonenumber  , "Registeration page");
 //             console.log(profilePic , "Profile Pic");
-            
-            
+
+
 
 
 
@@ -43,7 +44,7 @@ async function generateAcessTokenAndRefreshToken(userid)  {
 //             if(userExist){  
 //                 return res.status(400).json({message : "User already exists"})  
 //             }
-            
+
 //             const user = await  User.create({
 //                 username,
 //                 fullname,
@@ -52,28 +53,28 @@ async function generateAcessTokenAndRefreshToken(userid)  {
 //                 profilePic
 //             });
 //             console.log(user);
-            
+
 //             return res.status(201).json({message : "User created successfully", user})
 
 //         } catch (error) {
 //             res.status(500).json({message:"server error"})
-            
+
 //         }
-        
-   
+
+
 // }
 
 const registerUser = async (req, res) => {
     try {
         const { username, fullname, dob, phonenumber } = req.body;
-        console.log("request Body " , req.body)
+        console.log("request Body ", req.body)
         const profilePic = req.file ? req.file.path : null; // Ensure profilePic is properly assigned
 
         console.log("Received data:", username, fullname, dob, phonenumber);
         console.log("Profile Pic Path:", profilePic);
 
         // Check if user already exists
-        const userExist = await User.findOne({ phonenumber });  
+        const userExist = await User.findOne({ phonenumber });
         if (userExist) {
             return res.status(400).json({ message: "User already exists" });
         }
@@ -96,37 +97,62 @@ const registerUser = async (req, res) => {
     }
 };
 
-const loginUser = async (req , res) => {
+const loginUser = async (req, res) => {
 
-   try {
-    const {phonenumber} = req.body;
-    const userExists = await User.findOne({phonenumber: phonenumber.trim()});  
-    console.log(phonenumber, "Phone number received in loginUser"); 
-    if(!userExists){
-        return res.status(400).json({message : "User does not exist. Register Yourself"})
-    }
-    const generateOtp = generateOTP();
-    console.log(generateOtp , "Generate OTP");
-    let createModel = await OTPModel.create({ phonenumber, OTP: generateOtp });
-    console.log(createModel , "OTP Model Created");
-    const {acessToken,refreshToken} = await generateAcessTokenAndRefreshToken(userExists._id);
-    console.log(acessToken, refreshToken, "Tokens generated");
-    return res.status(200).json(
-        {
-         acessToken,
-         refreshToken,
-         otp : generateOtp,
-         redirect : "/otp",
-         message: "User logged in successfully",
-         user: userExists, // Corrected this variable
+    try {
+        const { phonenumber } = req.body;
+        const userExists = await User.findOne({ phonenumber: phonenumber.trim() });
+        console.log(phonenumber, "Phone number received in loginUser");
+        if (!userExists) {
+            return res.status(400).json({ message: "User does not exist. Register Yourself" })
         }
-    );
+        const generateOtp = generateOTP();
+        console.log(generateOtp, "Generate OTP");
+        let createModel = await OTPModel.create({ phonenumber, OTP: generateOtp });
+        console.log(createModel, "OTP Model Created");
+        const { acessToken, refreshToken } = await generateAcessTokenAndRefreshToken(userExists._id);
+        console.log(acessToken, refreshToken, "Tokens generated");
+        return res.status(200)
+            .cookie("AcessToken", acessToken, { httpOnly: true })
+            .cookie("RefreshToken", refreshToken, { httpOnly: true })
+            .json(
+                {
+                    //  acessToken,
+                    //  refreshToken,
+                    otp: generateOtp,
+                    redirect: "/otp",
+                    message: "User logged in successfully",
+                    user: userExists, // Corrected this variable
+                }
+            );
 
-   } catch (error) {
-    res.status(401).json({message : "Invalid Credentials"})
-   }
-    
+    } catch (error) {
+        res.status(401).json({ message: "Invalid Credentials" })
+    }
+
 }
 
 
-export {registerUser,loginUser}
+const getLoggedInUser = async (req, res) => {
+    try {
+        const getLoggedInUser = req.cookies
+        if (!getLoggedInUser) {
+            return res.status(401).json({ message: "User not logged in" })
+        }
+        const decodedToken = jwt.verify(getLoggedInUser.AcessToken, process.env.ACESS_TOKEN_SECRET);
+        const user = await User.findById(decodedToken._id);
+        console.log("User: ", user)
+        if (!user) {
+            return res.status(404).json({ message: "User not found" })
+        }
+
+        return res.status(200).json({ message: "User logged in successfully", user })
+    }
+    catch (error) {
+        console.log("Error in getLoggedInUser:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+}
+
+
+export { registerUser, loginUser, getLoggedInUser }
