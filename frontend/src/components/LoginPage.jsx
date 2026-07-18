@@ -8,8 +8,6 @@ import { Phone } from 'lucide-react';
 import LoginSkeleton from "../loadingSkeleton/LoginSkeleton";
 
 
-
-
 function LoginPage() {
 
   const [isLoading, setIsLoading] = useState(false);
@@ -24,21 +22,21 @@ function LoginPage() {
   }
 
   async function handelSendOTP() {
-
     const phonePattern = /^\d{10}$/;
-    
+
     if (phonePattern.test(phonenumber)) {
       try {
         let response = await axios.post("/api/v1/",
           { phonenumber: phonenumber.trim() || "" }
         );
-        console.log("Response from server:", response);
+
+
         dispatch(setActiveUser({
           phonenumber: response.data.user.phonenumber
-          , userName: response.data.user.username, fullname: response.data.user.fullname, otp: response.data.otp
+          , userName: response.data.user.username, fullname: response.data.user.fullname, 
         }));
+        
         dispatch(setOtp({ otp: response.data.otp }));
-        console.log("Phone number sent: ", phonenumber);
         navigate("/otp");
         setPhoneNumber(``);
       } catch (error) {
@@ -89,11 +87,13 @@ function LoginPage() {
                   className="bg-transparent text-white w-full outline-none placeholder:text-gray-400 text-sm sm:text-base"
                   type="text"
                   placeholder="Enter your mobile number"
+                  minLength={10}
+                  maxLength={10}
                   value={phonenumber}
                   onChange={handelInputChange}
                 />
               </div>
-                <span className="text-red-500 text-xs sm:text-sm">{phoneNumberError}</span>
+              <span className="text-red-500 text-xs sm:text-sm">{phoneNumberError}</span>
 
               {/* Buttons */}
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center w-full">

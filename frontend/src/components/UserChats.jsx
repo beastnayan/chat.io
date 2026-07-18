@@ -1,16 +1,50 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import UserSettings from "./UserSettings";
+import { useSelector, useDispatch } from "react-redux";
+import axios from "axios";
+import { setActiveUser } from "../store/AuthSlice";
 
 export default function UserChats({
   userProfilePicture,
-  userName,
-  dateOfBirth,
-  fullName,
-  phoneNumber,
+
 }) {
+
+
   const [inputMessage, setInputMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [showOptions, setShowOptions] = useState(false);
+  const dispatch = useDispatch();
+  
+  useEffect(() => {
+    const getLoggedInUser = async () => {
+      try {
+
+        let getloggedInUser = await axios.post("api/v1/getLoggedInUser", {}, { withCredentials: true })
+      
+
+        dispatch(setActiveUser({
+          phonenumber: getloggedInUser.data.user.phonenumber,
+          userName: getloggedInUser.data.user.username,
+          fullname: getloggedInUser.data.user.fullname,
+          dateOfBirth: getloggedInUser.data.user.dob
+
+        }))
+      } catch (error) {
+        console.log("User Chat Error:", error)
+
+      }
+    }
+
+    getLoggedInUser();
+  }, [])
+
+
+
+  const userName = useSelector((state) => state.auth.userName);
+  const fullName = useSelector((state) => state.auth.fullname);
+  const phoneNumber = useSelector((state) => state.auth.phonenumber);
+  const dateOfBirth = useSelector((state) => state.auth.dateOfBirth);
+
 
   const openUserSetting = () => {
     setShowOptions(!showOptions);
@@ -85,8 +119,8 @@ export default function UserChats({
           >
             <div
               className={`max-w-[70%] px-4 py-2 rounded-lg ${message.sender === "user"
-                  ? "bg-green-500 text-white"
-                  : "bg-white text-black shadow"
+                ? "bg-green-500 text-white"
+                : "bg-white text-black shadow"
                 }`}
             >
               {message.text}

@@ -1,13 +1,13 @@
-import { createSlice } from '@reduxjs/toolkit'; // ✅ Correct
+import { createSlice } from '@reduxjs/toolkit'; 
 
 
 
 const initialState = {
     activeUser: false,
-    userName: 'raju@123',
-    phonenumber: '0000000000',
-    fullname: 'Rajesh',
-    dateOfBirth: '02.02.1999',
+    userName: '',
+    phonenumber: '',
+    fullname: '',
+    dateOfBirth: '',
     otp: '',
     selectedImage: "",
     messages: [{type: '', sender: ''}]

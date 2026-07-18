@@ -14,11 +14,8 @@ function Header() {
     
     const admin = useSelector((state) => state.auth.userName);
     const adminFullName = useSelector((state) => state.auth.fullname);
-    const adminPhoneNumber = useSelector((state) => state.auth.phoneNumber);
+    const adminPhoneNumber = useSelector((state) => state.auth.phonenumber);
     const adminDateOfBirth = useSelector((state) => state.auth.dateOfBirth);
-
-
-
 
         const toggleOptions = () => {
             setShowOptions(!showOptions);
